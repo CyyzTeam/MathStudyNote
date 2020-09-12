@@ -18,8 +18,8 @@ C模型：y=2.168+0.659*ln(x)，R方为：0.992
 y_i = [n_i * x * (1 - 信风) - n_i * 信风] *(1 - model)
 '''
 # 最多能借多少钱
-max_money = 50000000
-max_money_name = "5千万"
+max_money = 100000000
+max_money_name = "1亿"
 
 def cal_max_profit(risk,cred = "A"):
     i_mon = 0
@@ -28,21 +28,33 @@ def cal_max_profit(risk,cred = "A"):
     for index in range(len(moneys)):
         n_i = moneys[index]
         #print(index)
-        for i_po in profit_po:
-            y_i = 0
-            if cred == "A":
-                y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.239+0.669*np.log(i_po)))
-            elif cred == "B":
-                y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.158+0.651*np.log(i_po)))
-            elif cred == "C":
-                y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.168+0.659*np.log(i_po)))
-            elif cred == "Q":
-                y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.188+0.659*np.log(i_po)))
+       
+        y_i = 0
+
+        if 1-risk > 0:
+            i_po = risk / (1 - risk)
+        else:
+            i_po = risk / (1 - risk + 0.00001)
+
+        if i_po > 0.15:
+            i_po = 0.15
+        
+        if i_po < 0.04:
+            i_po = 0.04
+
+        if cred == "A":
+            y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.239+0.669*np.log(i_po)))
+        elif cred == "B":
+            y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.158+0.651*np.log(i_po)))
+        elif cred == "C":
+            y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.168+0.659*np.log(i_po)))
+        elif cred == "Q":
+            y_i = (n_i * i_po * (1 - risk) - n_i * risk) * (1 - (2.188+0.659*np.log(i_po)))
             
-            if y_i > i_mon:
-                i_mon = y_i
-                r_i = index
-                r_po = i_po
+        if y_i > i_mon:
+            i_mon = y_i
+            r_i = index
+            r_po = i_po
 
                 
     #print(r_i)
@@ -69,7 +81,7 @@ if lend_data_1:
         if risk <= 0.2:
             possibility *= (1 - risk)
         
-        if possibility == 0:
+        if possibility < 0.04:
             possibility = 0.04
         
         if risk > 0.65:
@@ -138,7 +150,7 @@ else:
         if risk <= 0.2:
             possibility *= (1 - risk)
         
-        if possibility == 0:
+        if possibility < 0.04:
             possibility = 0.04
         
         if risk >= 0.65:

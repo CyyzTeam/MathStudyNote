@@ -1,10 +1,24 @@
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import accuracy_score  # 准确率
+from sklearn.metrics import accuracy_score 
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+from matplotlib import pyplot as plt
 from dataset import Dataset
 import pandas as pd
 
 is_pred_1 = True
+
+def ROC(y_true, y_score):
+    fpr, tpr, thresholds = roc_curve(y_true, y_score, pos_label=1)
+    AUC_ROC = roc_auc_score(y_true, y_score)
+    plt.figure()
+    plt.plot(fpr,tpr,'-',label='Area Under the Curve (AUC = %0.4f)' % AUC_ROC)
+    plt.title('ROC curve')
+    plt.xlabel("FPR (False Positive Rate)", fontsize = 15)
+    plt.ylabel("TPR (True Positive Rate)", fontsize = 15)
+    plt.legend(loc="lower right")
+    plt.show()
 
 if is_pred_1:
     model = xgb.Booster(model_file='model/q1_xgb0.model')
@@ -25,6 +39,7 @@ if is_pred_1:
             pred_labels.append(0)
 
     accuracy = accuracy_score(all_labels,pred_labels)
+    ROC(all_labels,all_pred)
     print('accuarcy:%.2f%%'%(accuracy*100))
 
     save_pred = dict()
@@ -33,8 +48,7 @@ if is_pred_1:
     save_pred["pred_labels"] = pred_labels
     save_pred["credit"] = credit
     save_pred_pd = pd.DataFrame(save_pred)
-
-    save_pred_pd.to_excel("output/Q1_predict.xlsx")
+    #save_pred_pd.to_excel("output/Q1_predict.xlsx")
 
 else:
     model = xgb.Booster(model_file='model/q2_xgb0.model')
