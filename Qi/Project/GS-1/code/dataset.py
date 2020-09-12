@@ -2,13 +2,14 @@ import pandas as pd
 import numpy as np
 
 class Dataset:
-    def __init__(self,data_path = "data\附件1_数据清洗.xlsx", is_data_1 = True):
+    def __init__(self,data_path = "data\附件1_数据清洗.xlsx", is_data_1 = True, is_train_1 = True):
         self.data_path = data_path
         self.data_df   = None
         self.is_data_1 = is_data_1
+        self.is_train_1 = is_train_1
         self.datas_np = None
         self.labels = None
-
+        self.name_company = None
         self.init()
 
     def read_data(self):
@@ -17,6 +18,10 @@ class Dataset:
     def init(self):
         self.read_data()
         self.data_to_np()
+
+    @property
+    def get_name_company(self):
+        return self.name_company
 
     @property
     def get_data(self):
@@ -39,7 +44,8 @@ class Dataset:
                     labels.append(0)
                 else:
                     labels.append(1)
-            if self.is_data_1:
+
+            if self.is_train_1:
                 if row["信誉评级"] == "A":
                     values.append(0.9)
                 elif row["信誉评级"] == "B":
@@ -68,7 +74,7 @@ class Dataset:
         labels   = np.array(labels)
 
         self.datas_np = datas_np
-
+        self.name_company = name_company
         if self.is_data_1:
             self.labels   = labels
         #print(datas_np.shape)

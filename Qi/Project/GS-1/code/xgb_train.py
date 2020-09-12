@@ -11,15 +11,6 @@ from sklearn.model_selection import KFold
 plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
-data_set = Dataset()
-all_data,all_labels = data_set.get_data
-
-random_seed = 2019
-k = 5
-fold = list(KFold(k, shuffle = True, random_state = random_seed).split(all_data))
-np.random.seed(random_seed)
-
-
 def img_importance(model):
     all_plot_label = ['信誉评级',"进项总金额","进项季度平均金额",
                  "销项总金额", "销项季度平均金额","总利润",
@@ -57,7 +48,7 @@ def img_importance(model):
     plt.show()
 
 
-def xgb_model(trn_x, trn_y, val_x, val_y, verbose):
+def xgb_model(trn_x, trn_y, val_x, val_y, verbose, class_pred = 0.65,show = False):
     params={'booster':'gbtree',
         'objective': 'binary:logistic',
         'eval_metric': ['logloss'],
@@ -93,7 +84,7 @@ def xgb_model(trn_x, trn_y, val_x, val_y, verbose):
     print(y_pred)
     acc_pred = []
     for pred in y_pred:
-        if pred > 0.6:
+        if pred > class_pred:
             acc_pred.append(1)
         else:
             acc_pred.append(0)
@@ -101,12 +92,24 @@ def xgb_model(trn_x, trn_y, val_x, val_y, verbose):
     # 计算准确率
     accuracy = accuracy_score(val_y,acc_pred)
     print('accuarcy:%.2f%%'%(accuracy*100))
+    if show:
+        img_importance(model)
 
-    #img_importance(model)
+    return accuracy, model
 
-    return accuracy
-
+class_pred = 0.65
+is_train_1 = False
 total_acc = 0
+max_acc = 0
+random_seed = 2019
+k = 5
+
+data_set = Dataset(is_train_1 = is_train_1)
+all_data,all_labels = data_set.get_data
+
+fold = list(KFold(k, shuffle = True, random_state = random_seed).split(all_data))
+np.random.seed(random_seed)
+
 for i, (trn, val) in enumerate(fold) :
     print(i+1, "fold")
     
@@ -116,7 +119,13 @@ for i, (trn, val) in enumerate(fold) :
     val_x = all_data[val, :]
     val_y = all_labels[val]
     
-    acc = xgb_model(trn_x, trn_y, val_x, val_y, verbose = False)
+    acc, model = xgb_model(trn_x, trn_y, val_x, val_y, verbose = False, class_pred = class_pred,show = False)
     total_acc += acc
+    if acc > max_acc:
+        max_acc = acc
+        if is_train_1:
+            model.save_model('model/q1_xgb' + str(i) + '.model')
+        else:
+            model.save_model('model/q2_xgb' + str(i) + '.model')
 
 print('total_acc:%.2f%%'%(total_acc/5*100))
