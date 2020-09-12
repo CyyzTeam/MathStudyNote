@@ -10,6 +10,7 @@ class Dataset:
         self.datas_np = None
         self.labels = None
         self.name_company = None
+        self.credit = None
         self.init()
 
     def read_data(self):
@@ -21,7 +22,10 @@ class Dataset:
 
     @property
     def get_name_company(self):
-        return self.name_company
+        if self.is_data_1:
+            return self.name_company,self.credit
+        else:
+            return self.name_company
 
     @property
     def get_data(self):
@@ -34,12 +38,16 @@ class Dataset:
         labels  = []
         datas = []
         name_company = []
+        credit = []
         for index,row in self.data_df.iterrows():
             values = []
             #print(index)
             name_company.append(row[0])
 
             if self.is_data_1:
+
+                credit.append(row["信誉评级"])
+
                 if row["是否违约"] == "否":
                     labels.append(0)
                 else:
@@ -75,6 +83,7 @@ class Dataset:
 
         self.datas_np = datas_np
         self.name_company = name_company
+        self.credit = credit
         if self.is_data_1:
             self.labels   = labels
         #print(datas_np.shape)

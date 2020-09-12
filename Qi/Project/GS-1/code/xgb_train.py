@@ -12,9 +12,9 @@ plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 def img_importance(model):
-    all_plot_label = ['信誉评级',"进项总金额","进项季度平均金额",
-                 "销项总金额", "销项季度平均金额","总利润",
-                 "季度平均利润", "总增值税", "平均季度增值税"]
+    all_plot_label = ['信誉评级',"总成本","季度平均成本",
+                 "总收入", "季度平均收入","总利润",
+                 "季度平均利润", "总增值税", "季度平均增值税"]
     
 
     importance = model.get_fscore()
@@ -32,9 +32,9 @@ def img_importance(model):
 
     _, ax = plt.subplots(1, 1)
     ax.barh(new_labels, values, align='center', height=0.2)
-    ax.set_title('Feature importance')
-    ax.set_xlabel('F score')
-    ax.set_ylabel("Features")
+    ax.set_title('Feature importance', fontsize=15)
+    ax.set_xlabel('F score', fontsize = 15)
+    ax.set_ylabel("Features", fontsize = 15)
 
     xlim = (0, max(values) * 1.1)
     ylim = (-1, len(values))
@@ -98,7 +98,8 @@ def xgb_model(trn_x, trn_y, val_x, val_y, verbose, class_pred = 0.65,show = Fals
     return accuracy, model
 
 class_pred = 0.65
-is_train_1 = False
+is_train_1 = True
+save = False
 total_acc = 0
 max_acc = 0
 random_seed = 2019
@@ -119,13 +120,13 @@ for i, (trn, val) in enumerate(fold) :
     val_x = all_data[val, :]
     val_y = all_labels[val]
     
-    acc, model = xgb_model(trn_x, trn_y, val_x, val_y, verbose = False, class_pred = class_pred,show = False)
+    acc, model = xgb_model(trn_x, trn_y, val_x, val_y, verbose = False, class_pred = class_pred,show = True)
     total_acc += acc
-    if acc > max_acc:
+    
+    if save and acc > max_acc:
         max_acc = acc
         if is_train_1:
             model.save_model('model/q1_xgb' + str(i) + '.model')
         else:
             model.save_model('model/q2_xgb' + str(i) + '.model')
-
 print('total_acc:%.2f%%'%(total_acc/5*100))

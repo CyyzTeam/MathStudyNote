@@ -15,7 +15,8 @@ class image:
     
     def init(self):
         self.read_data()
-        self.score_pie()
+        self.in_money_bar()
+        #self.score_pie()
         #self.season_bar()
         #self.sum_profit_bar()
         #self.sum_tax_bar()
@@ -39,7 +40,7 @@ class image:
                 sizes.append(value/sum_count)
           
             if name == "否":
-                ax[0].set_title("未违约信誉评级占比")
+                ax[0].set_title("未违约信誉评级占比",fontsize = 15)
                 ax[0].pie(
                     x = sizes,
                     labels = labels,
@@ -53,7 +54,7 @@ class image:
                     startangle = 180, 
                 )
             else:
-                ax[1].set_title("违约信誉评级占比")
+                ax[1].set_title("违约信誉评级占比", fontsize = 15)
                 ax[1].pie(
                     x = sizes,
                     labels = labels,
@@ -69,8 +70,6 @@ class image:
         plt.show()
 
             
-
-
     def size_label(self, profit, bound = 10000):
         max_profit = profit.max()
         min_profit = profit.min()
@@ -107,22 +106,43 @@ class image:
         
         return labels,sizes
 
+    def in_money_bar(self):
+        index = 0
+        figure, ax = plt.subplots(1,2)
+        for name,group in self.data_df.groupby(["是否违约"]):
+
+            profit = group["进项总金额"]
+            labels,sizes = self.size_label(profit)
+            #ax[0][0].axes(aspect='equal')
+            #ax[0][1].axes(aspect='equal')
+            ax[index].barh(y = labels , width = sizes)
+            ax[index].set_xlabel("各个总成本区间占比", fontsize = 15)
+            ax[0].set_ylabel("总成本区间(单位：万元)",fontsize = 15)
+            if(name == "否"):
+                ax[index].set_title("未违约总成本区间各部分占比", fontsize = 15)
+            else:
+                ax[index].set_title("违约总成本区间各部分占比", fontsize = 15)
+            #ax[index].legend()
+            #ax[index].legend(loc = 'lower left')
+            index += 1
+        plt.show()
+
     def sum_tax_bar(self):
         index = 0
         figure, ax = plt.subplots(1,2)
         for name,group in self.data_df.groupby(["是否违约"]):
 
-            profit = group["销项总税收"]
+            profit = group["销项季度平均税收"] - group["进项季度平均税收"]
             labels,sizes = self.size_label(profit)
             #ax[0][0].axes(aspect='equal')
             #ax[0][1].axes(aspect='equal')
             ax[index].barh(y = labels , width = sizes)
-            ax[index].set_xlabel("各个税收区间占比")
-            ax[0].set_ylabel("销项总税收区间(单位：万元)")
+            ax[index].set_xlabel("各个税收区间占比", fontsize = 15)
+            ax[0].set_ylabel("季度平均增值税税收区间(单位：万元)",fontsize = 15)
             if(name == "否"):
-                ax[index].set_title("未违约销项总税收各部分占比")
+                ax[index].set_title("未违约季度平均增值税各部分占比", fontsize = 15)
             else:
-                ax[index].set_title("违约销项总税收各部分占比")
+                ax[index].set_title("违约季度平均增值税各部分占比", fontsize = 15)
             #ax[index].legend()
             #ax[index].legend(loc = 'lower left')
             index += 1
@@ -174,12 +194,12 @@ class image:
 
             
             ax[index].barh(y = labels , width = sizes)
-            ax[index].set_xlabel("各个利润区间占比")
-            ax[0].set_ylabel("利润区间(单位：万元)")
+            ax[index].set_xlabel("各个利润区间占比", fontsize = 15)
+            ax[0].set_ylabel("利润区间(单位：万元)",fontsize = 15)
             if(name == "否"):
-                ax[index].set_title("未违约总利润各部分占比")
+                ax[index].set_title("未违约总利润各部分占比", fontsize = 15)
             else:
-                ax[index].set_title("违约总利润各部分占比")
+                ax[index].set_title("违约总利润各部分占比", fontsize = 15)
             #ax[index].legend()
             #ax[index].legend(loc = 'lower left')
             index += 1
