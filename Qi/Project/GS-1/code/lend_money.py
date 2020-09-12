@@ -18,8 +18,8 @@ C模型：y=2.168+0.659*ln(x)，R方为：0.992
 y_i = [n_i * x * (1 - 信风) - n_i * 信风] *(1 - model)
 '''
 # 最多能借多少钱
-max_money = 100000000
-max_money_name = "1亿"
+max_money = 50000000
+max_money_name = "5千万"
 
 def cal_max_profit(risk,cred = "A"):
     i_mon = 0
@@ -80,17 +80,35 @@ if lend_data_1:
             every_company_money_rate.append(possibility)
     
     if max_lend_money > max_money:
-        sum_risk = data_risk.sum()
+
+        sum_risk = 0
+        sum_risk_cp = 0
+
         for index in range(len(data_name)):
             if every_company_lendmoney[index] > 0:
-                every_company_lendmoney[index] -= ((data_risk[index] / sum_risk) * (max_lend_money - max_money))
-            
+                sum_risk += data_risk[index]
+
+        sum_risk_cp = sum_risk
+        travel_money = max_lend_money - max_money
+
+        for index in range(len(data_name)):
+            m = every_company_lendmoney[index]
+            if m - data_risk[index] * travel_money / sum_risk_cp <  0 and m > 0:
+                every_company_lendmoney[index] = 0
+                every_company_money_rate[index] = 0
+                sum_risk -= data_risk[index]
+
+        for index in range(len(data_name)):
+            if every_company_lendmoney[index] > 0:
+                m = every_company_lendmoney[index]
+                every_company_lendmoney[index] = m - (data_risk[index] * travel_money / sum_risk)
+
             if every_company_lendmoney[index] < 0:
                 every_company_lendmoney[index] = 0
                 every_company_money_rate[index] = 0
-
-    else:
+            
         print(max_lend_money)
+        print(travel_money)
     
     pd_len_money = dict()
     pd_len_money["name"] = data_name
@@ -123,7 +141,7 @@ else:
         if possibility == 0:
             possibility = 0.04
         
-        if risk > 0.65:
+        if risk >= 0.65:
             every_company_lendmoney.append(0)
             every_company_money_rate.append(0)
         else:
@@ -131,14 +149,36 @@ else:
             every_company_money_rate.append(possibility)
     
     if max_lend_money > max_money:
-        sum_risk = data_risk.sum()
+
+        sum_risk = 0
+        sum_risk_cp = 0
+
         for index in range(len(data_name)):
             if every_company_lendmoney[index] > 0:
-                every_company_lendmoney[index] -= ((data_risk[index] / sum_risk) * (max_lend_money - max_money))
+                sum_risk += data_risk[index]
+
+        sum_risk_cp = sum_risk
+        travel_money = max_lend_money - max_money
+
+        for index in range(len(data_name)):
+            m = every_company_lendmoney[index]
+            if m - (data_risk[index] * travel_money / sum_risk_cp) <  0 and m > 0:
+                every_company_lendmoney[index] = 0
+                every_company_money_rate[index] = 0
+                sum_risk -= data_risk[index]
+
+        for index in range(len(data_name)):
+            if every_company_lendmoney[index] > 0:
+                m = every_company_lendmoney[index]
+                every_company_lendmoney[index] = m - (data_risk[index] * travel_money / sum_risk )
             
             if every_company_lendmoney[index] < 0:
                 every_company_lendmoney[index] = 0
                 every_company_money_rate[index] = 0
+                
+            
+        print(max_lend_money)
+        print(travel_money)
 
     else:
         print(max_lend_money)
